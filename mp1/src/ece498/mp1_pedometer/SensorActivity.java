@@ -3,19 +3,15 @@ package ece498.mp1_pedometer;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
 import au.com.bytecode.opencsv.CSVWriter;
-import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class SensorActivity extends Activity implements SensorEventListener{
 
-	private SensorManager mSensorManager;
-	private Sensor mSensor;
 	private float Accel_x;
 	private float Accel_y;
 	private float Accel_z;
@@ -31,7 +27,6 @@ public class SensorActivity extends Activity implements SensorEventListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
     	Accel_x = 0;
     	Accel_y = 0;
     	Accel_z = 0;
