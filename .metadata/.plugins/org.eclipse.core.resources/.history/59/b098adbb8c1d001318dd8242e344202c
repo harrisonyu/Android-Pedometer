@@ -1,0 +1,55 @@
+package ece498.mp1_pedometer;
+
+import java.util.List;
+
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.app.Activity;
+import android.content.Context;
+import android.view.Menu;
+
+public class SensorActivity extends Activity implements SensorEventListener{
+
+	private SensorManager mSensorManager;
+	private Sensor mSensor;
+	
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    public void onSensorChanged(SensorEvent event)
+    {
+        mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER 
+        		|| event.sensor.getType() == Sensor.TYPE_GYROSCOPE
+        		|| event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD
+        		|| event.sensor.getType() == Sensor.TYPE_LIGHT){
+        	float timestamp = event.timestamp;
+        	float Accel_x =
+        }
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+ 
+    @Override
+    protected void onPause() {
+        super.onPause();
+ 
+    }
+}

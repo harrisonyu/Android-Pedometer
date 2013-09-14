@@ -1,0 +1,5 @@
+INDEX VERSION 1.126+/Users/Harrison/Documents/adt-bundle-mac-x86_64-20130729/workspace/.metadata/.plugins/org.eclipse.jdt.core
+3856283007.index
+4038695088.index
+3892003275.index
+2402854685.index
