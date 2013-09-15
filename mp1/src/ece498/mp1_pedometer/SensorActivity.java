@@ -5,12 +5,14 @@ import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.os.Bundle;
+import android.os.Environment;
 import android.app.Activity;
 import android.content.Context;
 import android.view.Menu;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -33,9 +35,16 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	private Sensor mag;
 	private Sensor light; 
 	
+	private static Context context;
+	
+	String filename = "mp1_stage1.csv";
+	File file;
+	CSVWriter writer;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getApplicationContext();
         setContentView(R.layout.activity_main);
     	Accel_x = 0;
     	Accel_y = 0;
@@ -47,6 +56,13 @@ public class SensorActivity extends Activity implements SensorEventListener {
     	Mag_y = 0;
     	Mag_z = 0;
     	light_intensity = 0;
+    	File filedir = context.getExternalFilesDir(null);
+    	file = new File(filedir, filename);
+    	try {
+    		writer = new CSVWriter(new FileWriter(file), ',');
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
     	senMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
     	accel = senMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     	gyro = senMan.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -87,22 +103,14 @@ public class SensorActivity extends Activity implements SensorEventListener {
         } else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
         	light_intensity = values[0];
         }
-        try {
-        	String filename = "mp1_stage1.csv";
-        	File file = new File(super.getFilesDir(), filename); //not sure if getFilesDir is correct
-            CSVWriter writer = new CSVWriter(new FileWriter(file), ',');
             String[] entry = new String[1];
             entry[0] = Float.toString(timestamp) + "," + Float.toString(Accel_x) + ","
             		+ Float.toString(Accel_y) + "," + Float.toString(Accel_z) + ","
             		+ Float.toString(Gyro_x) + "," + Float.toString(Gyro_y) + ","
             		+ Float.toString(Gyro_z) + "," + Float.toString(Mag_x) + ","
             		+ Float.toString(Mag_y) + "," + Float.toString(Mag_z) + "," + Float.toString(light_intensity);
-            writer.writeNext(entry);  
-            writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            writer.writeNext(entry);
+            System.out.println("Writing: " + file);
     }
     
     @Override
@@ -118,5 +126,15 @@ public class SensorActivity extends Activity implements SensorEventListener {
     protected void onPause() {
         super.onPause(); 
         senMan.unregisterListener(this);
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	try {
+    		writer.close();
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
     }
 }

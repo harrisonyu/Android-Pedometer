@@ -3,7 +3,7 @@
     package="ece498.mp1_pedometer"
     android:versionCode="1"
     android:versionName="1.0" >
-    
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="ece498.mp1_pedometer.MainActivity"
+            android:name="ece498.mp1_pedometer.SensorActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
