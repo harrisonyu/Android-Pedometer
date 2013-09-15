@@ -90,7 +90,6 @@ public class SensorActivity extends Activity implements SensorEventListener {
         try {
         	String filename = "mp1_stage1.csv";
         	File file = new File(super.getFilesDir(), filename); //not sure if getFilesDir is correct
-        	try {
             CSVWriter writer = new CSVWriter(new FileWriter(file), ',');
             String[] entry = new String[1];
             entry[0] = Float.toString(timestamp) + "," + Float.toString(Accel_x) + ","
