@@ -33,10 +33,6 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	private Sensor mag;
 	private Sensor light; 
 	
-	String filename = "mp1_stage1.csv";
-	File file;
-    CSVWriter writer;
-	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,13 +47,6 @@ public class SensorActivity extends Activity implements SensorEventListener {
     	Mag_y = 0;
     	Mag_z = 0;
     	light_intensity = 0;
-    	file = new File(super.getFilesDir(), filename); //not sure if getFilesDir is correct
-    	try {
-    		writer = new CSVWriter(new FileWriter(file), ',');
-    	} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
     	senMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
     	accel = senMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     	gyro = senMan.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -83,26 +72,26 @@ public class SensorActivity extends Activity implements SensorEventListener {
     {
     	float timestamp = event.timestamp * 1000000; // milliseconds
     	float[] values = event.values;
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER ){
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER ) {
         	Accel_x = values[0];
         	Accel_y = values[1];
         	Accel_z = values[2];
-        }
-        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE){
+        } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
         	Gyro_x = values[0];
         	Gyro_y = values[1];
         	Gyro_z = values[2];
-        }
-        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-        {
+        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
         	Mag_x = values[0];
         	Mag_y = values[1];
         	Mag_z = values[2];
-        }
-        if (event.sensor.getType() == Sensor.TYPE_LIGHT){
+        } else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
         	light_intensity = values[0];
         }
         try {
+        	String filename = "mp1_stage1.csv";
+        	File file = new File(super.getFilesDir(), filename); //not sure if getFilesDir is correct
+        	try {
+            CSVWriter writer = new CSVWriter(new FileWriter(file), ',');
             String[] entry = new String[1];
             entry[0] = Float.toString(timestamp) + "," + Float.toString(Accel_x) + ","
             		+ Float.toString(Accel_y) + "," + Float.toString(Accel_z) + ","
