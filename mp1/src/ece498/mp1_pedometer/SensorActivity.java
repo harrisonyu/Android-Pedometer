@@ -6,8 +6,11 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.view.Menu;
 import au.com.bytecode.opencsv.CSVWriter;
+
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -30,6 +33,9 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	private Sensor mag;
 	private Sensor light; 
 	
+	String filename = "mp1_stage1.csv";
+	File file;
+    CSVWriter writer;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +51,13 @@ public class SensorActivity extends Activity implements SensorEventListener {
     	Mag_y = 0;
     	Mag_z = 0;
     	light_intensity = 0;
+    	file = new File(super.getFilesDir(), filename); //not sure if getFilesDir is correct
+    	try {
+    		writer = new CSVWriter(new FileWriter(file), ',');
+    	} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	senMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
     	accel = senMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     	gyro = senMan.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -90,7 +103,6 @@ public class SensorActivity extends Activity implements SensorEventListener {
         	light_intensity = values[0];
         }
         try {
-            CSVWriter writer = new CSVWriter(new FileWriter("/FILE"), ','); // figure out what to put in file
             String[] entry = new String[1];
             entry[0] = Float.toString(timestamp) + "," + Float.toString(Accel_x) + ","
             		+ Float.toString(Accel_y) + "," + Float.toString(Accel_z) + ","
