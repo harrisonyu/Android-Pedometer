@@ -1,6 +1,7 @@
 package ece498.mp1_pedometer;
 
 import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.os.Bundle;
@@ -10,7 +11,7 @@ import au.com.bytecode.opencsv.CSVWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class SensorActivity extends Activity implements SensorEventListener{
+public class SensorActivity extends Activity implements SensorEventListener {
 
 	private float Accel_x;
 	private float Accel_y;
@@ -22,6 +23,13 @@ public class SensorActivity extends Activity implements SensorEventListener{
 	private float Mag_y;
 	private float Mag_z;
 	private float light_intensity;
+	
+	private SensorManager senMan;
+	private Sensor accel;
+	private Sensor gyro;
+	private Sensor mag;
+	private Sensor light; 
+	
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +45,11 @@ public class SensorActivity extends Activity implements SensorEventListener{
     	Mag_y = 0;
     	Mag_z = 0;
     	light_intensity = 0;
+    	senMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+    	accel = senMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    	gyro = senMan.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+    	mag = senMan.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+    	light = senMan.getDefaultSensor(Sensor.TYPE_LIGHT);
     }
 
 
@@ -95,10 +108,15 @@ public class SensorActivity extends Activity implements SensorEventListener{
     @Override
     protected void onResume() {
         super.onResume();
+        senMan.registerListener(this, accel, SensorManager.SENSOR_DELAY_NORMAL);
+        senMan.registerListener(this, gyro, SensorManager.SENSOR_DELAY_NORMAL);
+        senMan.registerListener(this, mag, SensorManager.SENSOR_DELAY_NORMAL);
+        senMan.registerListener(this, light, SensorManager.SENSOR_DELAY_NORMAL);
     }
  
     @Override
     protected void onPause() {
         super.onPause(); 
+        senMan.unregisterListener(this);
     }
 }
