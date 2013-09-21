@@ -1,3 +1,7 @@
+/*ECE498 MP1
+Harrison Yu(yu91)
+Alan Chiang (achiang3)*/
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -7,7 +11,7 @@
 #include <stdlib.h>
 using namespace std;
 
-int main () {
+int main (int argc, char *argv[]) {
 	string line;
 	string word;
 	vector<double> timestamp;
@@ -22,7 +26,7 @@ int main () {
 	vector<double> mag_z;
 	vector<double> light_intensity;
 
-	ifstream myfile ("mp1_stage1.csv");
+	ifstream myfile (argv[1]);
 	if (myfile.is_open())
 	{
 	    while (! myfile.eof() )
@@ -114,13 +118,27 @@ int main () {
         }
         myfile.close();
 	}
-	else cout << "Unable to open file";
+	else
+   {
+      cout << "Unable to open file";
+      return 1;
+   }
 
-	for(int i=0; i < (int)timestamp.size(); i++)
-	{
-		cout << i << " "<< timestamp[i] << ", " << accel_x[i] << ", " << accel_y[i] << ", " << accel_z[i];
-		cout << ", " << gyro_x[i] << ", " << gyro_y[i] << ", " << gyro_z[i];
-		cout << ", " << mag_x[i] << ", " << mag_y[i] << ", " << mag_z[i] << ", " << light_intensity[i] << endl;
-	}
+   int steps=0;
+   int flag = 0;
+   for(int i=0; i< (int)accel_z.size();i++)
+   {
+      if(accel_z[i] > 9.8 && flag == 0)
+      {
+         steps++;
+         flag = 1;
+      }
+      else if(accel_z[i] < 9.8 && flag == 1)
+      {
+         steps++;
+         flag = 0;
+      }
+   }
+   cout << "The number of steps you took was approximately: "<<steps << endl;
 	return 0;
 }
