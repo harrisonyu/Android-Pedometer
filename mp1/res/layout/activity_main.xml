@@ -47,4 +47,13 @@
         android:layout_marginTop="52dp"
         android:text="Degrees and Direction" />
 
+    <TextView
+        android:id="@+id/wifi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/num_steps"
+        android:layout_below="@+id/direction"
+        android:layout_marginTop="45dp"
+        android:text="StrongestAP" />
+
 </RelativeLayout>

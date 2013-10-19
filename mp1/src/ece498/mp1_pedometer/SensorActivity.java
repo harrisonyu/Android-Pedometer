@@ -4,10 +4,14 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -15,16 +19,16 @@ import android.widget.TextView;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 public class SensorActivity extends Activity implements SensorEventListener {
 	private boolean step_flag;
 	private int steps;
-	private TextView view;
+	private TextView stepsDisplay;
 	private TextView directions;
-	private TextView degrees;
+	private TextView wifiView;
 	
 	private float Accel_x;
 	private float Accel_y;
@@ -38,6 +42,10 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	private float light_intensity;
 	
 	private double directionDegree;
+	
+	private WifiManager wifiMan;
+	private WifiEventReceiver wifiReceiver;
+	private ScanResult strongestAP;
 	
 	private SensorManager senMan;
 	private Sensor accel;
@@ -59,9 +67,9 @@ public class SensorActivity extends Activity implements SensorEventListener {
         setContentView(R.layout.activity_main);
         steps = 0;
         step_flag = false;
-        view = (TextView)findViewById(R.id.num_steps);
+        stepsDisplay = (TextView)findViewById(R.id.num_steps);
         directions = (TextView)findViewById(R.id.direction);
-        //degrees = (TextView)findViewById(R.id.degrees);
+        wifiView = (TextView)findViewById(R.id.wifi);
     	Accel_x = 0;
     	Accel_y = 0;
     	Accel_z = 0;
@@ -81,6 +89,9 @@ public class SensorActivity extends Activity implements SensorEventListener {
     		e.printStackTrace();
     	}
     	senMan = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+    	wifiMan = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+    	wifiReceiver = new WifiEventReceiver();
+    	registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
     	accel = senMan.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     	gyro = senMan.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
     	mag = senMan.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -89,15 +100,10 @@ public class SensorActivity extends Activity implements SensorEventListener {
     	myButton.setOnClickListener(new View.OnClickListener()
     		{
     			public void onClick(View v){
-    				if(running == false)
-    				{
-    					running = true;
+    				running = running == false ? true : false;
+    				if (running == true) {
+    					wifiMan.startScan();
     				}
-    				else
-    				{
-    					running = false;
-    				}
-    					
     			}
     		});
     }
@@ -130,7 +136,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	        		step_flag = true;
 	        	} else if (Accel_z <= 9.8 && step_flag == true) {
 	        		steps++;
-	        		view.setText("STEPS: " + steps);
+	        		stepsDisplay.setText("STEPS: " + steps);
 	        		step_flag = false;
 	        	}
 	        	/*
@@ -155,7 +161,6 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	        	Mag_x = values[0];
 	        	Mag_y = values[1];
 	        	Mag_z = values[2];
-	        	//degrees.setText("X:" + Mag_x + " Y: " + Mag_y + " Z: " + Mag_z);
 	        	float gravity[] = new float[3];
 	        	gravity[0] = 1;
 	        	gravity[1] = 1;
@@ -176,7 +181,8 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	            		+ Float.toString(Accel_y) + "," + Float.toString(Accel_z) + ","
 	            		+ Float.toString(Gyro_x) + "," + Float.toString(Gyro_y) + ","
 	            		+ Float.toString(Gyro_z) + "," + Float.toString(Mag_x) + ","
-	            		+ Float.toString(Mag_y) + "," + Float.toString(Mag_z) + "," + Float.toString(light_intensity);
+	            		+ Float.toString(Mag_y) + "," + Float.toString(Mag_z) + "," + Float.toString(light_intensity) + ","
+	            		+ (strongestAP != null ? strongestAP.SSID + "," + strongestAP.level : "NULL,NULL");
 	            writer.writeNext(entry);
 	            System.out.println("Writing: " + file);
     	}
@@ -189,12 +195,14 @@ public class SensorActivity extends Activity implements SensorEventListener {
         senMan.registerListener(this, gyro, SensorManager.SENSOR_DELAY_NORMAL);
         senMan.registerListener(this, mag, SensorManager.SENSOR_DELAY_NORMAL);
         senMan.registerListener(this, light, SensorManager.SENSOR_DELAY_NORMAL);
+        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
     }
  
     @Override
     protected void onPause() {
         super.onPause(); 
         senMan.unregisterListener(this);
+        unregisterReceiver(wifiReceiver);
     }
    
     @Override
@@ -227,4 +235,21 @@ public class SensorActivity extends Activity implements SensorEventListener {
     	else
     		return "X";
     }
+    
+    class WifiEventReceiver extends BroadcastReceiver {
+    	public void onReceive(Context context, Intent intent) {
+    		int strongestLevel = -1000;
+    		List<ScanResult> results = wifiMan.getScanResults();
+    		for (int i = 0; i < results.size(); i++) {
+    			if (results.get(i).level > strongestLevel) {
+    				strongestLevel = results.get(i).level;
+    				strongestAP = results.get(i);
+    			}
+    		}
+    		if (strongestAP != null)
+    			wifiView.setText("Strongest AP: " + strongestAP.SSID + " Level: " + strongestAP.level);
+    		
+    	}
+    }
 }
+
