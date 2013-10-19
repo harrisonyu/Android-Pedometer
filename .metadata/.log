@@ -697,3 +697,6 @@ Binding(CTRL+SHIFT+ARROW_LEFT,
 
 !ENTRY com.android.ide.eclipse.adt 2 0 2013-10-18 21:08:36.095
 !MESSAGE activity_main.xml: Couldn't resolve resource @string/steps
+
+!ENTRY com.android.ide.eclipse.adt 2 0 2013-10-18 21:11:40.733
+!MESSAGE activity_main.xml: Couldn't resolve resource @string/start_pedometer

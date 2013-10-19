@@ -12,19 +12,17 @@
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/textView1"
-        android:layout_marginRight="64dp"
-        android:layout_marginTop="81dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:text="@string/start_pedometer" />
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/num_steps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="44dp"
+        android:layout_above="@+id/button1"
+        android:layout_alignLeft="@+id/button1"
+        android:layout_marginLeft="58dp"
         android:text="@string/steps" />
 
 
