@@ -12,6 +12,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.text.format.Time;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -53,6 +54,10 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	private Sensor mag;
 	private Sensor light; 
 	
+	private static String compassVal;
+	private static double stepSize = 1.25;
+	private double displacement = 0;
+	
 	private static boolean running = false;
 	private static Context context;
 	
@@ -82,6 +87,9 @@ public class SensorActivity extends Activity implements SensorEventListener {
     	light_intensity = 0;
     	directionDegree = 0;
     	File filedir = context.getExternalFilesDir(null);
+    	Time currentTime = new Time();
+    	currentTime.setToNow();
+    	filename = "yu91_achiang3_" + currentTime.format2445() + ".csv";
     	file = new File(filedir, filename);
     	try {
     		writer = new CSVWriter(new FileWriter(file), ',');
@@ -104,6 +112,14 @@ public class SensorActivity extends Activity implements SensorEventListener {
     				if (running == true) {
     					wifiMan.startScan();
     				}
+    			}
+    		});
+
+    	final Button wifiScan = (Button) findViewById(R.id.button2);
+    	wifiScan.setOnClickListener(new View.OnClickListener()
+    		{
+    			public void onClick(View v){
+    					wifiMan.startScan();
     			}
     		});
     }
@@ -136,7 +152,8 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	        		step_flag = true;
 	        	} else if (Accel_z <= 9.8 && step_flag == true) {
 	        		steps++;
-	        		stepsDisplay.setText("STEPS: " + steps);
+	        		displacement = displacement + stepSize;
+	        		stepsDisplay.setText("STEPS: " + steps + " Displacement: " + displacement + "feet");
 	        		step_flag = false;
 	        	}
 	        	/*
@@ -171,7 +188,8 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	        		float orientation[] = new float[3];
 	        		SensorManager.getOrientation(R, orientation);
 	        		directionDegree = Math.toDegrees(orientation[0]);
-	        		directions.setText("Degrees: " + directionDegree + " Direction: " + degreesToDirection(directionDegree));
+	        		compassVal = degreesToDirection(directionDegree);
+	        		directions.setText("Degrees: " + directionDegree + " Direction: " + compassVal);
 	        	}
 	        } else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
 	        	light_intensity = values[0];
@@ -182,7 +200,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	            		+ Float.toString(Gyro_x) + "," + Float.toString(Gyro_y) + ","
 	            		+ Float.toString(Gyro_z) + "," + Float.toString(Mag_x) + ","
 	            		+ Float.toString(Mag_y) + "," + Float.toString(Mag_z) + "," + Float.toString(light_intensity) + ","
-	            		+ (strongestAP != null ? strongestAP.SSID + "," + strongestAP.level : "NULL,NULL");
+	            		+ compassVal + "," + directionDegree + ","+ (strongestAP != null ? strongestAP.SSID + "," + strongestAP.level : "NULL,NULL");
 	            writer.writeNext(entry);
 	            System.out.println("Writing: " + file);
     	}
@@ -247,8 +265,9 @@ public class SensorActivity extends Activity implements SensorEventListener {
     			}
     		}
     		if (strongestAP != null)
+    		{
     			wifiView.setText("Strongest AP: " + strongestAP.SSID + " Level: " + strongestAP.level);
-    		
+    		}
     	}
     }
 }

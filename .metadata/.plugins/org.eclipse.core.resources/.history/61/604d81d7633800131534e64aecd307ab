@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Pedometer</string>
+    <string name="action_settings">Settings</string>
+<<<<<<< HEAD
+    <string name="steps">Steps Taken:</string>
+    <string name="start_pedometer">Start/Stop Pedometer</string>
+    
+=======
+    <string name="hello_world">Hello world!</string>
+    <string name="steps">STEPS:</string>
+
+>>>>>>> 9ae40bfe8f9e384f591cd300bff0b87bc2030231
+</resources>
