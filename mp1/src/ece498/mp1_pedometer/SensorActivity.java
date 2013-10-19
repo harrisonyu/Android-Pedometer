@@ -23,6 +23,8 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	private boolean step_flag;
 	private int steps;
 	private TextView view;
+	private TextView directions;
+	private TextView gyroscope;
 	
 	private float Accel_x;
 	private float Accel_y;
@@ -56,6 +58,8 @@ public class SensorActivity extends Activity implements SensorEventListener {
         steps = 0;
         step_flag = false;
         view = (TextView)findViewById(R.id.num_steps);
+        directions = (TextView)findViewById(R.id.direction);
+        gyroscope = (TextView)findViewById(R.id.gyro);
     	Accel_x = 0;
     	Accel_y = 0;
     	Accel_z = 0;
@@ -121,7 +125,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	        	Accel_z = values[2];
 	        	if (Accel_z > 9.8 && step_flag == false) {
 	        		step_flag = true;
-	        	} else if (Accel_z < 9.8 && step_flag == true) {
+	        	} else if (Accel_z <= 9.8 && step_flag == true) {
 	        		steps++;
 	        		view.setText("STEPS: " + steps);
 	        		step_flag = false;
@@ -130,10 +134,12 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	        	Gyro_x = values[0];
 	        	Gyro_y = values[1];
 	        	Gyro_z = values[2];
+	        	gyroscope.setText("X: " + Gyro_x + " Y: " + Gyro_y + " Z: " + Gyro_z);
 	        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
 	        	Mag_x = values[0];
 	        	Mag_y = values[1];
 	        	Mag_z = values[2];
+	        	directions.setText("X:" + Mag_x + " Y: " + Mag_y + " Z: " + Mag_z);
 	        } else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
 	        	light_intensity = values[0];
 	        }
