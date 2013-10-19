@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.app.Activity;
 import android.content.Context;
 import android.view.Menu;
+import android.widget.TextView;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import java.io.File;
@@ -17,7 +18,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class SensorActivity extends Activity implements SensorEventListener {
-
+	private boolean step_flag;
+	private int steps;
+	private TextView view;
+	
 	private float Accel_x;
 	private float Accel_y;
 	private float Accel_z;
@@ -46,6 +50,9 @@ public class SensorActivity extends Activity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         context = getApplicationContext();
         setContentView(R.layout.activity_main);
+        steps = 0;
+        step_flag = false;
+        view = (TextView)findViewById(R.id.num_steps);
     	Accel_x = 0;
     	Accel_y = 0;
     	Accel_z = 0;
@@ -92,6 +99,13 @@ public class SensorActivity extends Activity implements SensorEventListener {
         	Accel_x = values[0];
         	Accel_y = values[1];
         	Accel_z = values[2];
+        	if (Accel_z > 9.8 && step_flag == false) {
+        		step_flag = true;
+        	} else if (Accel_z < 9.8 && step_flag == true) {
+        		steps++;
+        		view.setText("STEPS: " + steps);
+        		step_flag = false;
+        	}
         } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
         	Gyro_x = values[0];
         	Gyro_y = values[1];
