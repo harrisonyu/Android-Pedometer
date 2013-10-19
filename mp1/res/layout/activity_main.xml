@@ -25,24 +25,26 @@
         android:layout_marginLeft="58dp"
         android:text="@string/steps" />
 
-    <TextView
-        android:id="@+id/direction"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/num_steps"
-        android:layout_below="@+id/button1"
-       	android:layout_centerHorizontal="true"
-        android:layout_marginTop="79dp"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/gyro"
+<!--    
+     <TextView
+        android:id="@+id/degrees"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignLeft="@+id/direction"
         android:layout_below="@+id/direction"
         android:layout_marginTop="24dp"
-        android:text="TextView" />
+        android:text="Magnetic Field" />
+-->
+
+    <TextView
+        android:id="@+id/direction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/button1"
+        android:layout_below="@+id/button1"
+        android:layout_marginLeft="23dp"
+        android:layout_marginTop="52dp"
+        android:text="Degrees and Direction" />
 
 </RelativeLayout>

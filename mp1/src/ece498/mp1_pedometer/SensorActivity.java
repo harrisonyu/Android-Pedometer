@@ -24,7 +24,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	private int steps;
 	private TextView view;
 	private TextView directions;
-	private TextView gyroscope;
+	private TextView degrees;
 	
 	private float Accel_x;
 	private float Accel_y;
@@ -36,6 +36,8 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	private float Mag_y;
 	private float Mag_z;
 	private float light_intensity;
+	
+	private double directionDegree;
 	
 	private SensorManager senMan;
 	private Sensor accel;
@@ -59,7 +61,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
         step_flag = false;
         view = (TextView)findViewById(R.id.num_steps);
         directions = (TextView)findViewById(R.id.direction);
-        gyroscope = (TextView)findViewById(R.id.gyro);
+        //degrees = (TextView)findViewById(R.id.degrees);
     	Accel_x = 0;
     	Accel_y = 0;
     	Accel_z = 0;
@@ -70,6 +72,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
     	Mag_y = 0;
     	Mag_z = 0;
     	light_intensity = 0;
+    	directionDegree = 0;
     	File filedir = context.getExternalFilesDir(null);
     	file = new File(filedir, filename);
     	try {
@@ -130,16 +133,41 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	        		view.setText("STEPS: " + steps);
 	        		step_flag = false;
 	        	}
+	        	/*
+	        	float geoMag[] = new float[3];
+	        	geoMag[0] = Gyro_x;
+	        	geoMag[1] = Gyro_y;
+	        	geoMag[2] = Gyro_z;
+	        	float R[] = new float[9];
+	        	float I[] = new float[9];
+	        	if (SensorManager.getRotationMatrix(R, I, values, geoMag)) {
+	        		float orientation[] = new float[3];
+	        		SensorManager.getOrientation(R, orientation);
+	        		directionDegree = Math.toDegrees(orientation[0]);
+	        		directions.setText("Degrees: " + directionDegree + " Direction: " + degreesToDirection(directionDegree));
+	        	}
+	        	*/
 	        } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
 	        	Gyro_x = values[0];
 	        	Gyro_y = values[1];
 	        	Gyro_z = values[2];
-	        	gyroscope.setText("X: " + Gyro_x + " Y: " + Gyro_y + " Z: " + Gyro_z);
 	        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
 	        	Mag_x = values[0];
 	        	Mag_y = values[1];
 	        	Mag_z = values[2];
-	        	directions.setText("X:" + Mag_x + " Y: " + Mag_y + " Z: " + Mag_z);
+	        	//degrees.setText("X:" + Mag_x + " Y: " + Mag_y + " Z: " + Mag_z);
+	        	float gravity[] = new float[3];
+	        	gravity[0] = 1;
+	        	gravity[1] = 1;
+	        	gravity[2] = Accel_z;
+	        	float R[] = new float[9];
+	        	float I[] = new float[9];
+	        	if (SensorManager.getRotationMatrix(R, I, gravity, values)) {
+	        		float orientation[] = new float[3];
+	        		SensorManager.getOrientation(R, orientation);
+	        		directionDegree = Math.toDegrees(orientation[0]);
+	        		directions.setText("Degrees: " + directionDegree + " Direction: " + degreesToDirection(directionDegree));
+	        	}
 	        } else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
 	        	light_intensity = values[0];
 	        }
@@ -177,5 +205,26 @@ public class SensorActivity extends Activity implements SensorEventListener {
     	} catch (IOException e) {
     		e.printStackTrace();
     	}
+    }
+    
+    private String degreesToDirection(double degrees) {
+    	if (degrees >= -22.5 && degrees < 22.5)
+    		return "N";
+    	else if (degrees >= 22.5 && degrees < 67.5)
+    		return "NE";
+    	else if (degrees >= 67.5 && degrees < 112.5)
+    		return "E";
+    	else if (degrees >= 112.5 && degrees < 157.5)
+    		return "SE";
+    	else if (degrees >= 157.5 || degrees < -157.5)
+    		return "S";
+    	else if (degrees >= -157.5 && degrees < -112.5)
+    		return "SW";
+    	else if (degrees >= -112.5 && degrees < -67.5)
+    		return "W";
+    	else if (degrees >= -67.5 && degrees < -22.5)
+    		return "NW";
+    	else
+    		return "X";
     }
 }
