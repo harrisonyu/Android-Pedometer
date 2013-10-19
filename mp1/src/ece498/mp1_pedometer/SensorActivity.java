@@ -9,6 +9,8 @@ import android.os.Environment;
 import android.app.Activity;
 import android.content.Context;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import java.io.File;
@@ -35,6 +37,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	private Sensor mag;
 	private Sensor light; 
 	
+	private static boolean running = false;
 	private static Context context;
 	
 	String filename = "mp1_stage1.csv";
@@ -68,6 +71,24 @@ public class SensorActivity extends Activity implements SensorEventListener {
     	gyro = senMan.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
     	mag = senMan.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     	light = senMan.getDefaultSensor(Sensor.TYPE_LIGHT);
+    	final Button myButton = (Button) findViewById(R.id.button1);
+    	myButton.setOnClickListener(new View.OnClickListener()
+    		{
+    			public void onClick(View v){
+    				if(running == false)
+    				{
+    					onStart();
+    					running = true;
+    				}
+    				else
+    				{
+    					onStop();
+    					running = false;
+    				}
+    					
+    			}
+    		});
+    		
     }
 
 
@@ -86,31 +107,34 @@ public class SensorActivity extends Activity implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event)
     {
-    	float timestamp = event.timestamp * 1000000; // milliseconds
-    	float[] values = event.values;
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER ) {
-        	Accel_x = values[0];
-        	Accel_y = values[1];
-        	Accel_z = values[2];
-        } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-        	Gyro_x = values[0];
-        	Gyro_y = values[1];
-        	Gyro_z = values[2];
-        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-        	Mag_x = values[0];
-        	Mag_y = values[1];
-        	Mag_z = values[2];
-        } else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
-        	light_intensity = values[0];
-        }
-            String[] entry = new String[1];
-            entry[0] = Float.toString(timestamp) + "," + Float.toString(Accel_x) + ","
-            		+ Float.toString(Accel_y) + "," + Float.toString(Accel_z) + ","
-            		+ Float.toString(Gyro_x) + "," + Float.toString(Gyro_y) + ","
-            		+ Float.toString(Gyro_z) + "," + Float.toString(Mag_x) + ","
-            		+ Float.toString(Mag_y) + "," + Float.toString(Mag_z) + "," + Float.toString(light_intensity);
-            writer.writeNext(entry);
-            System.out.println("Writing: " + file);
+    	if(running == true)
+    	{
+	    	float timestamp = event.timestamp * 1000000; // milliseconds
+	    	float[] values = event.values;
+	        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER ) {
+	        	Accel_x = values[0];
+	        	Accel_y = values[1];
+	        	Accel_z = values[2];
+	        } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+	        	Gyro_x = values[0];
+	        	Gyro_y = values[1];
+	        	Gyro_z = values[2];
+	        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+	        	Mag_x = values[0];
+	        	Mag_y = values[1];
+	        	Mag_z = values[2];
+	        } else if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
+	        	light_intensity = values[0];
+	        }
+	            String[] entry = new String[1];
+	            entry[0] = Float.toString(timestamp) + "," + Float.toString(Accel_x) + ","
+	            		+ Float.toString(Accel_y) + "," + Float.toString(Accel_z) + ","
+	            		+ Float.toString(Gyro_x) + "," + Float.toString(Gyro_y) + ","
+	            		+ Float.toString(Gyro_z) + "," + Float.toString(Mag_x) + ","
+	            		+ Float.toString(Mag_y) + "," + Float.toString(Mag_z) + "," + Float.toString(light_intensity);
+	            writer.writeNext(entry);
+	            System.out.println("Writing: " + file);
+    	}
     }
     
     @Override
@@ -126,6 +150,12 @@ public class SensorActivity extends Activity implements SensorEventListener {
     protected void onPause() {
         super.onPause(); 
         senMan.unregisterListener(this);
+    }
+   
+    
+    protected void onStop(){
+    	senMan.unregisterListener(this);
+    	super.onStop();
     }
     
     @Override
