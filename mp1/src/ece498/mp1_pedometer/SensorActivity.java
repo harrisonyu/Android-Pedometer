@@ -58,15 +58,16 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	private Sensor light; 
 	
 	private static AudioRecord sound;
-	private static short[] data = new short[75];
+	private static short[] data = new short[100];
 
 	
 	private static String compassVal;
-	private static double stepSize = 1.25;
+	private static double stepSize = 26.5;
 	private double displacement = 0;
 	
 	private static boolean running = false;
 	private static Context context;
+	private static int turn = 0;
 	
 	String filename = "mp1_stage1.csv";
 	File file;
@@ -135,6 +136,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
     		{
     			public void onClick(View v){
     					wifiMan.startScan();
+    					turn++;
     			}
     		});
     }
@@ -157,9 +159,20 @@ public class SensorActivity extends Activity implements SensorEventListener {
     {
     	if(running == true)
     	{
-    		sound.read(data, 0, 75);
-    		float decibel = (float)((20.0*Math.log10((float)(Math.abs((float)(data[data.length-1])/65535.0)))));
-    		stepsDisplay.setText("Decibel" +" " +  decibel);
+    		sound.read(data, 0, 100);
+    		double avg = 0;
+    		double total = 0;
+    		for(int i = 0; i < data.length; i++)
+    		{
+    			if(data[i] != 0)
+    			{
+    				avg = avg+data[i];
+    				total++;
+    			}
+    		}
+    		avg = avg/total;
+    		float decibel = (float)((20.0*Math.log10((float)(Math.abs((float)(avg)/8000.0)))));
+    		//stepsDisplay.setText("Decibel" +" " +  decibel);
 	    	float timestamp = event.timestamp * 1000000; // milliseconds
 	    	float[] values = event.values;
 	        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER ) {
@@ -171,7 +184,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	        	} else if (Accel_z <= 9.8 && step_flag == true) {
 	        		steps++;
 	        		displacement = displacement + stepSize;
-	        		//stepsDisplay.setText("STEPS: " + steps + " Displacement: " + displacement + "feet");
+	        		stepsDisplay.setText("STEPS: " + steps + " Displacement: " + displacement + "inches");
 	        		step_flag = false;
 	        	}
 	        	/*
@@ -206,6 +219,10 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	        		float orientation[] = new float[3];
 	        		SensorManager.getOrientation(R, orientation);
 	        		directionDegree = Math.toDegrees(orientation[0]);
+	        		if(directionDegree < 0)
+	        		{
+	        			directionDegree = directionDegree + 360;
+	        		}
 	        		compassVal = degreesToDirection(directionDegree);
 	        		directions.setText("Degrees: " + directionDegree + " Direction: " + compassVal);
 	        	}
@@ -218,7 +235,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	            		+ Float.toString(Gyro_x) + "," + Float.toString(Gyro_y) + ","
 	            		+ Float.toString(Gyro_z) + "," + Float.toString(Mag_x) + ","
 	            		+ Float.toString(Mag_y) + "," + Float.toString(Mag_z) + "," + Float.toString(light_intensity) + "," + Float.toString(decibel) + ","
-	            		+ compassVal + "," + directionDegree + ","+ (strongestAP != null ? strongestAP.SSID + "," + strongestAP.level : "NULL,NULL");
+	            		+ compassVal + "," + directionDegree + ","+ (strongestAP != null ? strongestAP.SSID + "," + strongestAP.level : "NULL,NULL") + "," + turn;
 	            writer.writeNext(entry);
 	            System.out.println("Writing: " + file);
     	}
@@ -252,7 +269,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
     }
     
     private String degreesToDirection(double degrees) {
-    	if (degrees >= -22.5 && degrees < 22.5)
+    	if (degrees >= 337.5 || degrees < 22.5)
     		return "N";
     	else if (degrees >= 22.5 && degrees < 67.5)
     		return "NE";
@@ -260,13 +277,13 @@ public class SensorActivity extends Activity implements SensorEventListener {
     		return "E";
     	else if (degrees >= 112.5 && degrees < 157.5)
     		return "SE";
-    	else if (degrees >= 157.5 || degrees < -157.5)
+    	else if (degrees >= 157.5 && degrees < 202.5)
     		return "S";
-    	else if (degrees >= -157.5 && degrees < -112.5)
+    	else if (degrees >= 202.5 && degrees < 247.5)
     		return "SW";
-    	else if (degrees >= -112.5 && degrees < -67.5)
+    	else if (degrees >= 247.5 && degrees < 292.5)
     		return "W";
-    	else if (degrees >= -67.5 && degrees < -22.5)
+    	else if (degrees >= 292.5 && degrees < 337.5)
     		return "NW";
     	else
     		return "X";
