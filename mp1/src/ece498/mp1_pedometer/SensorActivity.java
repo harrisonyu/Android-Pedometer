@@ -4,6 +4,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -53,6 +56,10 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	private Sensor gyro;
 	private Sensor mag;
 	private Sensor light; 
+	
+	private static AudioRecord sound;
+	private static short[] data = new short[75];
+
 	
 	private static String compassVal;
 	private static double stepSize = 1.25;
@@ -104,6 +111,9 @@ public class SensorActivity extends Activity implements SensorEventListener {
     	gyro = senMan.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
     	mag = senMan.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
     	light = senMan.getDefaultSensor(Sensor.TYPE_LIGHT);
+    	sound = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                8000, AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,2048);
     	final Button myButton = (Button) findViewById(R.id.button1);
     	myButton.setOnClickListener(new View.OnClickListener()
     		{
@@ -111,6 +121,11 @@ public class SensorActivity extends Activity implements SensorEventListener {
     				running = running == false ? true : false;
     				if (running == true) {
     					wifiMan.startScan();
+    		    		sound.startRecording();
+    				}
+    				else
+    				{
+    					sound.stop();
     				}
     			}
     		});
@@ -142,6 +157,9 @@ public class SensorActivity extends Activity implements SensorEventListener {
     {
     	if(running == true)
     	{
+    		sound.read(data, 0, 75);
+    		float decibel = (float)((20.0*Math.log10((float)(Math.abs((float)(data[data.length-1])/65535.0)))));
+    		stepsDisplay.setText("Decibel" +" " +  decibel);
 	    	float timestamp = event.timestamp * 1000000; // milliseconds
 	    	float[] values = event.values;
 	        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER ) {
@@ -153,7 +171,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	        	} else if (Accel_z <= 9.8 && step_flag == true) {
 	        		steps++;
 	        		displacement = displacement + stepSize;
-	        		stepsDisplay.setText("STEPS: " + steps + " Displacement: " + displacement + "feet");
+	        		//stepsDisplay.setText("STEPS: " + steps + " Displacement: " + displacement + "feet");
 	        		step_flag = false;
 	        	}
 	        	/*
@@ -199,7 +217,7 @@ public class SensorActivity extends Activity implements SensorEventListener {
 	            		+ Float.toString(Accel_y) + "," + Float.toString(Accel_z) + ","
 	            		+ Float.toString(Gyro_x) + "," + Float.toString(Gyro_y) + ","
 	            		+ Float.toString(Gyro_z) + "," + Float.toString(Mag_x) + ","
-	            		+ Float.toString(Mag_y) + "," + Float.toString(Mag_z) + "," + Float.toString(light_intensity) + ","
+	            		+ Float.toString(Mag_y) + "," + Float.toString(Mag_z) + "," + Float.toString(light_intensity) + "," + Float.toString(decibel) + ","
 	            		+ compassVal + "," + directionDegree + ","+ (strongestAP != null ? strongestAP.SSID + "," + strongestAP.level : "NULL,NULL");
 	            writer.writeNext(entry);
 	            System.out.println("Writing: " + file);
