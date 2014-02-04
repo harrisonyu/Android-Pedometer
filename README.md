@@ -1,4 +1,4 @@
-ECE498-MP1
+Android-Pedometer
 ==========
 
 Harrison Yu & Alan Chiang
